@@ -155,12 +155,20 @@ async function load(quiet){
   S.loading=false;if(!quiet||!isEditing())render();
 }
 const isEditing=()=>document.activeElement&&/INPUT|SELECT/.test(document.activeElement.tagName);
-async function saveCfg(msg){
-  try{
-    if(S.mode==='server')await srv('config',{method:'PUT',body:JSON.stringify(S.cfg)});
-    else{const r=await gh('config.json',{method:'PUT',body:JSON.stringify({message:'config from ACtrack',content:b64e(S.cfg),sha:S.sha})});S.sha=r.content.sha}
-    S.dirty=false;toast(msg||(S.mode==='server'?'Saved':'Saved. Applies within a few minutes'));
-  }catch(e){toast('Save failed: '+e.message)}
+let saveQ=Promise.resolve();
+const saveCfg=msg=>saveQ=saveQ.then(()=>doSave(msg),()=>doSave(msg));   // one save at a time
+async function doSave(msg){
+  for(let i=0;i<4;i++){
+    try{
+      if(S.mode==='server')await srv('config',{method:'PUT',body:JSON.stringify(S.cfg)});
+      else{const r=await gh('config.json',{method:'PUT',body:JSON.stringify({message:'config from ACtrack',content:b64e(S.cfg),sha:S.sha})});S.sha=r.content.sha}
+      S.dirty=false;toast(msg||(S.mode==='server'?'Saved':'Saved. Applies within a few minutes'));return;
+    }catch(e){
+      if(S.mode==='github'&&/GitHub (409|422)/.test(e.message)&&i<3){   // file changed since we read it: take the new version id and retry
+        try{S.sha=(await gh('config.json')).sha}catch(_){}
+        continue}
+      toast('Save failed: '+e.message);return}
+  }
 }
 async function control(id,mode,target){
   const u=S.cfg.units[id],minutes=S.dur||43200;   // 0 = until switched back to Auto
