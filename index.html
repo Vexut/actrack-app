@@ -262,7 +262,7 @@ function viewSettings(){
   <p class="mut" style="margin-top:0">Reads and writes your private repo. Use a fine-grained token with Contents: read &amp; write, for that repo only.</p>
   <div class="field"><label>Repository</label><input type="text" id="repo" value="${S.repo}" placeholder="owner/actrack"></div><div class="field"><label>Token</label><input type="password" id="ghtok" value="${S.ghTok}"></div></div>
   <div class="card c12"><div class="row"><div><b>Appearance</b><div class="faint">Follows your system by default</div></div><div class="seg" id="theme">${['auto','light','dark'].map(t=>`<button class="${(ls.get('theme')||'auto')===t?'on':''}" data-th="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div></div></div>
-  <div class="row c12" style="grid-column:span 12"><span class="faint">${S.err||''}</span><button class="btn" id="conn">Connect</button></div></div>
+  <div class="row c12" style="grid-column:span 12"><span style="color:#ff453a;font-weight:600">${S.err||''}</span><button class="btn" id="conn">Connect</button></div></div>
   <p class="faint" style="margin-top:20px">Shortcuts: 1–4 switch views · R refreshes · add <code>?widget=1</code> to the URL for the compact widget.</p>`;
 }
 function viewWidget(){
@@ -293,7 +293,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.tv){S.tableView=t.dataset.tv==='1';return render()}
   if(t.dataset.th){const v=t.dataset.th;ls.set('theme',v==='auto'?'':v);if(v==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=v;return render()}
   if(t.id==='conn'){S.base=$('#srv').value.trim().replace(/\/$/,'');S.srvTok=$('#srvtok').value;S.repo=$('#repo').value.trim();S.ghTok=$('#ghtok').value.trim();
-    ['server','srvtok','repo','token'].forEach((k,i)=>ls.set(k,[S.base,S.srvTok,S.repo,S.ghTok][i]));S.mode=null;S.loading=true;render();await load();if(S.online){toast('Connected');go('today')}return}
+    ['server','srvtok','repo','token'].forEach((k,i)=>ls.set(k,[S.base,S.srvTok,S.repo,S.ghTok][i]));S.mode=null;S.loading=true;render();await load();if(S.online){toast('Connected');go('today')}else{toast(S.err||'Could not connect — fill in repository and token');render()}return}
   if(t.id==='save')return saveCfg();
   const ctl=t.closest('[data-ctl]');if(ctl&&t.dataset.m)return control(ctl.dataset.ctl,t.dataset.m,t.dataset.m==='on'?S.cfg.units[ctl.dataset.ctl]?.target:undefined,+t.dataset.min||0);
   if(t.dataset.t){const id=t.dataset.id,u=S.cfg.units[id],x=S.state.devices[id],nt=Math.max(16,Math.min(28,(u.override?.target??u.target??21)+ +t.dataset.t));u.target=nt;x.target=nt;S.dirty=true;render();clearTimeout(go.d);go.d=setTimeout(async()=>{await saveCfg(S.mode==='server'?'Target '+nt+'°':undefined);if(S.mode==='server')control(id,'auto')},700);return}
