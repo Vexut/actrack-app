@@ -203,6 +203,9 @@ function dial(room,target,on){
 
 /* ---------- views ---------- */
 function connectCard(){return `<div class="card c12" style="max-width:560px"><div class="lbl">Get started</div><h2 style="margin:0 0 6px;font-size:22px">Connect ACtrack</h2><p class="mut">Open Settings and connect your homelab server or your GitHub repo.</p><button class="btn" data-go="settings">Open settings</button></div>`}
+const MODE={heat:'Heating',idle:'Holding low',off:'Off','hands-off':'Hands off'};
+const modeLabel=x=>MODE[x.mode]||(x.on?'Heating':'Idle');
+const sbLabel=v=>v<15?'Off':v+'°';
 function viewToday(){
   if(!S.online&&!S.state)return `<h1>Overview</h1><div class="sub">${S.err||'Not connected yet'}</div><div class="grid">${connectCard()}</div>`;
   const ps=prices(),ni=nowIdx(ps),cur=ni>=0?ps[ni].c:null,heat=heatSet(),d=devs();
@@ -211,13 +214,17 @@ function viewToday(){
   let h=`<h1>Overview</h1><div class="sub">${S.state?.updated?'Updated '+hh(new Date(S.state.updated)):'Waiting for first run'} · spot price + estimated margin &amp; transfer</div><div class="grid">`;
   if(!d.length)h+=`<div class="card c12 empty">No AC tracked yet. Add one in <a href="#" data-go="sched" style="color:var(--accent)">Schedule</a>.</div>`;
   d.forEach(([id,x],k)=>{const day=x.days?.[dayKey()]||{kwh:0,eur:0},ov=x.override;
-    h+=`<div class="card c5" style="animation-delay:${k*60}ms"><div class="row"><b style="font-size:17px">${x.name||id}</b><span class="pill ${x.on?'on':''}"><i></i>${ov?'Manual · ':''}${x.on?'Heating':'Idle'}</span></div>
+    h+=`<div class="card c5" style="animation-delay:${k*60}ms"><div class="row"><b style="font-size:17px">${x.name||id}</b><span class="pill ${x.on?'on':''}"><i></i>${ov?'Manual · ':''}${modeLabel(x)}</span></div>
     ${dial(x.room_temp,x.target,x.on)}
     <div class="step"><button data-t="-0.5" data-id="${id}" aria-label="Cooler">−</button><button data-t="0.5" data-id="${id}" aria-label="Warmer">+</button></div>
     <div class="row" style="margin-top:18px"><div class="seg" data-ctl="${id}"><button class="${!ov?'on':''}" data-m="auto">Auto</button><button data-m="on" data-min="60">Boost 1 h</button><button class="${ov&&ov.mode==='off'?'on':''}" data-m="off" data-min="120">Off 2 h</button></div></div>
     <div class="faint" style="margin-top:12px">Outside ${x.outside_temp??'–'}° · today ${eur(day.eur)} · ${day.kwh.toFixed(1)} kWh</div></div>`});
   h+=`<div class="card c7" style="animation-delay:80ms"><div class="row"><div><div class="lbl">Price now</div><div class="big">${cur==null?'–':cents(cur)}<small>c/kWh</small></div></div><div style="text-align:right"><div class="lbl">Spent today</div><div class="big" style="font-size:34px">${eur(todayEur)}</div><div class="faint">${todayKwh.toFixed(1)} kWh</div></div></div>
   <div style="margin-top:22px">${priceChart(ps,heat,'pc')}</div><div class="legend"><span><i style="background:var(--accent)"></i>Heating</span><span><i style="background:var(--bar)"></i>Off</span>${next?`<span style="margin-left:auto">${heat.has(ps[ni]?.t.getTime())?'Heating until':'Next heating'} ${hh(next.t)}</span>`:''}</div></div></div>`;
+  const adv=d.find(([,x])=>x.advice)?.[1].advice;
+  if(adv){const best=Math.min(...adv.rows.map(r=>r.eur));
+    h=h.slice(0,-6)+`<div class="card c12"><div class="lbl">Strategy estimate · next ${adv.hours} h</div><div class="faint" style="margin-bottom:8px">Is it cheaper to hold the temperature, or heat only in cheap hours? Rough model of a typical room, not measured from yours.</div>
+    <table><tr><th>Strategy</th><th>Cost</th><th>kWh</th><th>Coldest in window</th></tr>${adv.rows.map(r=>`<tr><td>${r.name}${r.eur===best?' <span class="pill on">cheapest</span>':''}</td><td>${eur(r.eur)}</td><td>${r.kwh.toFixed(1)}</td><td>${r.min_temp??'–'}°</td></tr>`).join('')}</table></div></div>`}
   return h;
 }
 function viewSpend(){
@@ -246,6 +253,8 @@ function viewSched(){
     <div class="field"><label>Target temperature <b>${u.target??21}°</b></label><input type="range" min="16" max="26" step="0.5" value="${u.target??21}" data-k="target"></div>
     <div class="field"><label>Savings to comfort <b>${Math.round((u.comfort??.7)*100)}%</b></label><input type="range" min="0.2" max="1" step="0.05" value="${u.comfort??.7}" data-k="comfort"></div>
     <div class="field"><label>Never heat above <b>${u.max_price??40} c/kWh</b></label><input type="range" min="5" max="80" step="1" value="${u.max_price??40}" data-k="max_price"></div>
+    <div class="field"><label>Between heating hours, idle at <b>${sbLabel(u.setback??18)}</b></label><input type="range" min="14" max="22" step="1" value="${u.setback??18}" data-k="setback"></div>
+    <div class="faint" style="margin-top:6px">Idle keeps the AC on at a low setpoint instead of switching it off, which avoids constant on/off cycling.</div>
     <div class="field"><label>Warm during</label>${(u.windows||[]).map((w,i)=>`<div class="win" data-w="${i}"><div class="days">${DAYS.map((n,j)=>`<button class="${w.days.includes(j)?'on':''}" data-d="${j}">${n}</button>`).join('')}</div><div class="two">${hourSel(w.start,'start',0)}${hourSel(w.end,'end',1)}</div><button class="btn ghost sm" style="margin-top:10px" data-rm="${i}">Remove</button></div>`).join('')}
     <button class="btn ghost sm" style="margin-top:12px" data-addw>+ Add window</button></div>
     <button class="btn ghost sm" style="margin-top:18px" data-delu>Stop tracking</button></div>`});
@@ -268,7 +277,7 @@ function viewSettings(){
 function viewWidget(){
   const ps=prices(),ni=nowIdx(ps),d=devs(),e=d.reduce((a,[,x])=>a+(x.days?.[dayKey()]?.eur||0),0);
   return `<div class="card" style="padding:18px"><div class="row"><div><div class="lbl">Price now</div><div class="big" style="font-size:38px">${ni>=0?cents(ps[ni].c):'–'}<small>c</small></div></div><div style="text-align:right"><div class="lbl">Today</div><div class="big" style="font-size:30px">${eur(e)}</div></div></div>
-  ${d.map(([,x])=>`<div class="row" style="margin-top:14px"><span>${x.name}<span class="faint"> · ${x.room_temp??'–'}°</span></span><span class="pill ${x.on?'on':''}"><i></i>${x.on?'Heating '+x.target+'°':'Idle'}</span></div>`).join('')}</div>`;
+  ${d.map(([,x])=>`<div class="row" style="margin-top:14px"><span>${x.name}<span class="faint"> · ${x.room_temp??'–'}°</span></span><span class="pill ${x.on?'on':''}"><i></i>${x.on?'Heating '+x.target+'°':modeLabel(x)}</span></div>`).join('')}</div>`;
 }
 
 /* ---------- render + events ---------- */
@@ -311,7 +320,7 @@ document.addEventListener('change',e=>{if(e.target.tagName==='SELECT')e.target.d
 document.addEventListener('input',e=>{
   const t=e.target,card=t.closest('[data-u]');if(!card||!t.dataset.k)return;const u=S.cfg.units[card.dataset.u],w=t.closest('[data-w]'),k=t.dataset.k;
   if(w)u.windows[+w.dataset.w][k]=t.value;else u[k]=+t.value;S.dirty=true;$('#save')?.style.setProperty('opacity',1);
-  const b=t.closest('.field')?.querySelector('label b');if(b)b.textContent=k==='target'?u[k]+'°':k==='comfort'?Math.round(u[k]*100)+'%':u[k]+' c/kWh';
+  const b=t.closest('.field')?.querySelector('label b');if(b)b.textContent=k==='target'?u[k]+'°':k==='comfort'?Math.round(u[k]*100)+'%':k==='setback'?sbLabel(u[k]):u[k]+' c/kWh';
 });
 document.addEventListener('keydown',e=>{if(/INPUT|SELECT/.test(e.target.tagName)||e.metaKey||e.ctrlKey)return;const i='1234'.indexOf(e.key);if(i>=0)go(TABS[i][0]);if(e.key==='r'){load();toast('Refreshing')}});
 render();load();setInterval(()=>load(true),60e3);
