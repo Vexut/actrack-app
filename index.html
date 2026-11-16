@@ -227,7 +227,8 @@ function manualNote(ov){
 function viewToday(){
   if(!S.online&&!S.state)return head('Overview',S.err||'Not connected')+connectPanel();
   const ps=prices(),ni=nowIdx(ps),cur=ni>=0?ps[ni].c:null,heat=heatSet(),d=devs();
-  let h=head('Overview',S.state?.updated?'Updated '+hh(new Date(S.state.updated))+' · prices include estimated margin and transfer':'Waiting for the first scheduler run',`<button class="btn ghost sm" data-refresh>Refresh</button>`);
+  let h=head('Overview',S.state?.updated?'Updated '+hh(new Date(S.state.updated))+' · prices include estimated margin and transfer':'Waiting for the first scheduler run',`<div style="display:flex;gap:14px;align-items:center"><label style="display:flex;gap:8px;align-items:center;color:var(--ink2);font-weight:500">Automation<button class="switch ${S.cfg?.paused?'':'on'}" data-pause aria-label="Automation on or off" aria-pressed="${!S.cfg?.paused}"></button></label><button class="btn ghost sm" data-refresh>Refresh</button></div>`);
+  if(S.cfg?.paused)h+=`<div class="panel"><div class="tool" style="border-top:0"><span><b style="font-weight:600">Automation is paused.</b> <span class="sub">ACtrack is not changing your ACs. It still records energy and cost.</span></span><button class="btn sm" data-pause>Resume</button></div></div>`;
   if(!d.length)h+=`<div class="panel"><div class="empty">No AC tracked yet. Add one in <a href="#" data-go="sched">Schedule</a>.</div></div>`;
   d.forEach(([id,x])=>{const day=x.days?.[dayKey()]||{kwh:0,eur:0},ov=x.override&&new Date(x.override.until)>new Date()?x.override:null;
     h+=`<div class="panel"><div class="ph"><b>${x.name||id}</b><span class="badge ${x.mode==='heat'?'on':''}"><i></i>${modeLabel(x)}</span></div>
@@ -318,6 +319,7 @@ document.addEventListener('click',async e=>{
   const t=e.target.closest('button,a');if(!t)return;
   if(t.dataset.go){e.preventDefault();return go(t.dataset.go)}
   if(t.dataset.refresh!==undefined){load();return toast('Refreshing')}
+  if(t.dataset.pause!==undefined){S.cfg.paused=!S.cfg.paused;await saveCfg(S.cfg.paused?'Paused. ACtrack will leave your ACs alone':'Resumed. Back to the schedule');return render()}
   if(t.dataset.r){S.range=+t.dataset.r;ls.set('range',S.range);return render()}
   if(t.dataset.tv){S.tableView=t.dataset.tv==='1';return render()}
   if(t.dataset.th){const v=t.dataset.th;ls.set('theme',v==='auto'?'':v);if(v==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=v;return render()}
