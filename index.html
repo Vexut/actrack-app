@@ -6,84 +6,84 @@
 <title>ACtrack</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#0e0f11">
 <style>
 :root{
-  --bg:#f2f2f5;--panel:rgba(255,255,255,.72);--card:#fff;--ink:#111317;--ink2:#5d6572;--ink3:#9aa2ae;--line:rgba(17,19,23,.08);
-  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,.12);--bar:#d9dde3;--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
-  --r:22px;--ease:cubic-bezier(.2,.8,.2,1);
+  --bg:#f6f6f4;--panel:#f6f6f4;--card:#fff;--ink:#16181b;--ink2:#5f6670;--ink3:#979ea8;--line:rgba(22,24,27,.1);
+  --accent:#e2530f;--accent-soft:rgba(226,83,15,.1);--bar:#dcdfe3;--shadow:none;
+  --r:12px;--ease:cubic-bezier(.2,.8,.2,1);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){
-  --bg:#08090b;--panel:rgba(22,24,28,.72);--card:#14161a;--ink:#f3f4f6;--ink2:#a0a8b4;--ink3:#626a76;--line:rgba(255,255,255,.08);
-  --accent:#ff8a3d;--accent-soft:rgba(255,138,61,.16);--bar:#2a2f37;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.35)}}
-:root[data-theme=dark]{--bg:#08090b;--panel:rgba(22,24,28,.72);--card:#14161a;--ink:#f3f4f6;--ink2:#a0a8b4;--ink3:#626a76;--line:rgba(255,255,255,.08);--accent:#ff8a3d;--accent-soft:rgba(255,138,61,.16);--bar:#2a2f37;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.35)}
+  --bg:#0e0f11;--panel:#0e0f11;--card:#151719;--ink:#ececee;--ink2:#9ca3ad;--ink3:#626972;--line:rgba(255,255,255,.09);
+  --accent:#ff8a4c;--accent-soft:rgba(255,138,76,.14);--bar:#2b2f35;--shadow:none}}
+:root[data-theme=dark]{--bg:#0e0f11;--panel:#0e0f11;--card:#151719;--ink:#ececee;--ink2:#9ca3ad;--ink3:#626972;--line:rgba(255,255,255,.09);--accent:#ff8a4c;--accent-soft:rgba(255,138,76,.14);--bar:#2b2f35;--shadow:none}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
 .app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
-aside{position:sticky;top:0;height:100vh;padding:28px 14px;background:var(--panel);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;letter-spacing:-.02em;padding:0 12px 22px}
-.brand i{width:28px;height:28px;border-radius:8px;background:linear-gradient(145deg,#ff9a4d,#ff5a00);display:grid;place-items:center;box-shadow:0 4px 12px rgba(255,90,0,.35)}
-.brand svg{width:16px;height:16px;fill:#fff}
-.nav{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:11px;border:0;background:none;color:var(--ink2);font-weight:550;cursor:pointer;text-align:left;transition:background .2s,color .2s}
-.nav:hover{background:var(--line)}.nav.on{background:var(--accent-soft);color:var(--accent)}
+aside{position:sticky;top:0;height:100vh;padding:28px 14px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;font-size:16px;letter-spacing:-.01em;padding:0 12px 24px}
+.brand i{width:26px;height:26px;border-radius:7px;background:var(--ink);display:grid;place-items:center}
+.brand svg{width:16px;height:16px}
+.nav{display:flex;align-items:center;gap:11px;padding:8px 12px;border-radius:8px;border:0;background:none;color:var(--ink2);font-weight:550;cursor:pointer;text-align:left;transition:background .2s,color .2s}
+.nav:hover{background:var(--line)}.nav.on{background:var(--line);color:var(--ink)}
 .nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav kbd{margin-left:auto;font:11px ui-monospace,monospace;color:var(--ink3)}
 .side-foot{margin-top:auto;padding:12px;font-size:12px;color:var(--ink3);display:flex;gap:8px;align-items:center}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--ink3)}.dot.ok{background:#34c759}.dot.bad{background:#ff453a}
 main{padding:34px clamp(18px,4vw,48px) 60px;max-width:1180px;width:100%}
-h1{font-size:34px;letter-spacing:-.03em;margin:0 0 4px;font-weight:700}
+h1{font-size:26px;letter-spacing:-.02em;margin:0 0 4px;font-weight:650}
 .sub{color:var(--ink2);margin-bottom:26px}
 .grid{display:grid;gap:16px;grid-template-columns:repeat(12,1fr)}
 .card{background:var(--card);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.anim .card{animation:rise .5s var(--ease) both}
+
 @keyframes rise{from{opacity:0;transform:translateY(8px)}}
 .c4{grid-column:span 4}.c5{grid-column:span 5}.c7{grid-column:span 7}.c8{grid-column:span 8}.c6{grid-column:span 6}.c12{grid-column:span 12}
 .lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
-.big{font-size:52px;font-weight:700;letter-spacing:-.04em;line-height:1}.big small{font-size:18px;color:var(--ink2);font-weight:600;letter-spacing:0;margin-left:4px}
+.big{font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}.big small{font-size:18px;color:var(--ink2);font-weight:600;letter-spacing:0;margin-left:4px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px}.mut{color:var(--ink2)}.faint{color:var(--ink3);font-size:13px}
-.seg{display:inline-flex;background:var(--line);border-radius:12px;padding:3px;gap:2px}
-.seg button{border:0;background:none;padding:7px 15px;border-radius:9px;font-weight:600;font-size:14px;color:var(--ink2);cursor:pointer;transition:all .2s var(--ease)}
-.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18)}
-.btn{border:0;border-radius:12px;background:var(--accent);color:#fff;padding:10px 18px;font-weight:650;cursor:pointer;transition:transform .15s var(--ease),filter .2s}
+.seg{display:inline-flex;background:var(--line);border-radius:9px;padding:2px;gap:2px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:7px;font-weight:550;font-size:14px;color:var(--ink2);cursor:pointer;transition:all .2s var(--ease)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.btn{border:0;border-radius:9px;background:var(--ink);color:var(--bg);padding:9px 16px;font-weight:600;cursor:pointer;transition:transform .15s var(--ease),filter .2s}
 .btn:hover{filter:brightness(1.07)}.btn:active{transform:scale(.97)}.btn.ghost{background:var(--line);color:var(--ink)}.btn.sm{padding:6px 12px;font-size:13px}
-.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:650;background:var(--line);color:var(--ink2)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:3px 9px;font-size:12px;font-weight:600;background:var(--line);color:var(--ink2)}
 .pill.on{background:var(--accent-soft);color:var(--accent)}.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
 .dial{position:relative;width:min(260px,100%);margin:0 auto}.dial svg{width:100%;display:block}
 .dial .mid{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
-.dial .t{font-size:58px;font-weight:700;letter-spacing:-.045em;line-height:1}.dial .t sup{font-size:22px;vertical-align:top;position:relative;top:6px}
+.dial .t{font-size:48px;font-weight:600;letter-spacing:-.04em;line-height:1}.dial .t sup{font-size:22px;vertical-align:top;position:relative;top:6px}
 .step{display:flex;justify-content:center;gap:14px;margin-top:6px}
-.step button{width:44px;height:44px;border-radius:50%;border:0;background:var(--line);font-size:22px;cursor:pointer;transition:transform .15s var(--ease),background .2s}
+.step button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:none;font-size:20px;cursor:pointer;transition:transform .15s var(--ease),background .2s}
 .step button:hover{background:var(--accent-soft)}.step button:active{transform:scale(.9)}
 .chart{position:relative;user-select:none}.chart svg{width:100%;display:block;overflow:visible}
 .chart text{fill:var(--ink3);font-size:11px}
 #pc text{font-size:13px}
-.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;padding:8px 12px;font-size:13px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
+.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
 .tip b{font-size:16px}
 .legend{display:flex;gap:16px;margin-top:10px;font-size:13px;color:var(--ink2)}.legend span{display:flex;align-items:center;gap:6px}.legend i{width:10px;height:10px;border-radius:3px}
 .field{margin-top:18px}.field label{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);margin-bottom:8px;font-weight:550}.field label b{color:var(--ink)}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:var(--line);outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;border:0}
 input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.35);border:0}
-input[type=text],input[type=password],input[type=time],select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 12px;outline:none}
+input[type=text],input[type=password],input[type=time],select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 12px;outline:none}
 input:focus,select:focus{border-color:var(--accent)}
 .switch{position:relative;width:46px;height:28px;border-radius:99px;background:var(--line);border:0;cursor:pointer;transition:background .25s;flex:none}
 .switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:transform .25s var(--ease)}
 .switch.on{background:#34c759}.switch.on::after{transform:translateX(18px)}
-.days{display:flex;gap:6px}.days button{flex:1;border:0;background:var(--line);border-radius:10px;padding:8px 0;font-size:12px;font-weight:650;color:var(--ink2);cursor:pointer;transition:all .2s}
-.days button.on{background:var(--accent);color:#fff}
-.win{background:var(--bg);border-radius:16px;padding:14px;margin-top:10px}
+.days{display:flex;gap:6px}.days button{flex:1;border:0;background:var(--line);border-radius:7px;padding:8px 0;font-size:12px;font-weight:650;color:var(--ink2);cursor:pointer;transition:all .2s}
+.days button.on{background:var(--ink);color:var(--bg)}
+.win{background:var(--bg);border-radius:10px;padding:14px;margin-top:10px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{padding:9px 6px;text-align:right;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--ink3);font-weight:600}
-.toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:99px;font-weight:550;font-size:14px;opacity:0;transition:all .3s var(--ease);z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:9px;font-weight:550;font-size:14px;opacity:0;transition:all .3s var(--ease);z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
 .skel{height:140px;border-radius:14px;background:linear-gradient(90deg,var(--line),transparent,var(--line));background-size:200% 100%;animation:sh 1.4s infinite}@keyframes sh{to{background-position:-200% 0}}
 .empty{text-align:center;padding:40px 10px;color:var(--ink2)}
 .tabbar{display:none}
 @media (max-width:860px){
-  .app{grid-template-columns:1fr}aside{display:none}main{padding:22px 16px 110px}h1{font-size:28px}
+  .app{grid-template-columns:1fr}aside{display:none}main{padding:22px 16px 110px}h1{font-size:24px}
   .c4,.c5,.c7,.c8,.c6{grid-column:span 12}
-  .tabbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));background:var(--panel);backdrop-filter:blur(30px) saturate(1.6);-webkit-backdrop-filter:blur(30px) saturate(1.6);border:1px solid var(--line);border-radius:22px;padding:6px;z-index:10;box-shadow:var(--shadow)}
-  .tabbar button{flex:1;border:0;background:none;padding:9px 0;border-radius:16px;color:var(--ink2);font-size:11px;font-weight:600;display:grid;gap:3px;justify-items:center}.tabbar button.on{color:var(--accent);background:var(--accent-soft)}
+  .tabbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));background:var(--card);border:1px solid var(--line);border-radius:14px;padding:5px;z-index:10}
+  .tabbar button{flex:1;border:0;background:none;padding:8px 0;border-radius:10px;color:var(--ink2);font-size:11px;font-weight:600;display:grid;gap:3px;justify-items:center}.tabbar button.on{color:var(--ink);background:var(--line)}
   .tabbar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 }
 body.widget .app{display:block}body.widget aside,body.widget .tabbar{display:none}body.widget main{padding:10px}
@@ -195,9 +195,9 @@ function dial(room,target,on){
   const R=100,C=2*Math.PI*R,arc=C*0.75,lo=16,hi=28,f=v=>Math.max(0,Math.min(1,(v-lo)/(hi-lo)));
   const ang=v=>135+270*f(v),pt=(a,r)=>[110+r*Math.cos(a*Math.PI/180),110+r*Math.sin(a*Math.PI/180)];
   const [tx,ty]=pt(ang(target),R);
-  return `<div class="dial"><svg viewBox="0 0 220 220"><g transform="rotate(135 110 110)"><circle cx="110" cy="110" r="${R}" fill="none" stroke="var(--line)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${arc} ${C}"/>
-  <circle cx="110" cy="110" r="${R}" fill="none" stroke="${on?'var(--accent)':'var(--ink3)'}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${arc*f(room||lo)} ${C}" style="transition:stroke-dasharray .8s var(--ease)"/></g>
-  <circle cx="${tx}" cy="${ty}" r="9" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/></svg>
+  return `<div class="dial"><svg viewBox="0 0 220 220"><g transform="rotate(135 110 110)"><circle cx="110" cy="110" r="${R}" fill="none" stroke="var(--line)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${arc} ${C}"/>
+  <circle cx="110" cy="110" r="${R}" fill="none" stroke="${on?'var(--accent)':'var(--ink3)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${arc*f(room||lo)} ${C}" style="transition:stroke-dasharray .8s var(--ease)"/></g>
+  <circle cx="${tx}" cy="${ty}" r="7" fill="var(--card)" stroke="var(--ink)" stroke-width="2.500"/></svg>
   <div class="mid"><div class="lbl" style="margin:0">Room</div><div class="t">${room!=null?Math.round(room*10)/10:'–'}<sup>°</sup></div><div class="faint">target ${target}°</div></div></div>`;
 }
 
@@ -208,7 +208,7 @@ function viewToday(){
   const ps=prices(),ni=nowIdx(ps),cur=ni>=0?ps[ni].c:null,heat=heatSet(),d=devs();
   const todayEur=d.reduce((a,[,x])=>a+(x.days?.[dayKey()]?.eur||0),0),todayKwh=d.reduce((a,[,x])=>a+(x.days?.[dayKey()]?.kwh||0),0);
   const next=ps.slice(ni+1).find(p=>heat.has(p.t.getTime())!==heat.has(ps[ni]?.t.getTime()));
-  let h=`<h1>${new Date().getHours()<12?'Good morning':new Date().getHours()<18?'Good afternoon':'Good evening'}</h1><div class="sub">${S.state?.updated?'Updated '+hh(new Date(S.state.updated)):'Waiting for first run'} · spot price + estimated margin &amp; transfer</div><div class="grid">`;
+  let h=`<h1>Overview</h1><div class="sub">${S.state?.updated?'Updated '+hh(new Date(S.state.updated)):'Waiting for first run'} · spot price + estimated margin &amp; transfer</div><div class="grid">`;
   if(!d.length)h+=`<div class="card c12 empty">No AC tracked yet. Add one in <a href="#" data-go="sched" style="color:var(--accent)">Schedule</a>.</div>`;
   d.forEach(([id,x],k)=>{const day=x.days?.[dayKey()]||{kwh:0,eur:0},ov=x.override;
     h+=`<div class="card c5" style="animation-delay:${k*60}ms"><div class="row"><b style="font-size:17px">${x.name||id}</b><span class="pill ${x.on?'on':''}"><i></i>${ov?'Manual · ':''}${x.on?'Heating':'Idle'}</span></div>
@@ -239,12 +239,12 @@ function hourBars(v){const mx=Math.max(.001,...v),W=700,H=70;return `<div class=
 const hourSel=(v,k,e)=>`<select data-k="${k}" aria-label="${k}">${Array.from({length:24+e},(_,i)=>{const t=String(i).padStart(2,'0')+':00';return `<option ${t===v?'selected':''}>${t}</option>`}).join('')}</select>`;
 function viewSched(){
   if(!S.cfg)return `<h1>Schedule</h1><div class="grid">${connectCard()}</div>`;
-  let h=`<div class="row"><div><h1>Schedule</h1><div class="sub">Tell it when you want warmth. It picks the cheapest hours inside.</div></div><button class="btn" id="save" style="${S.dirty?'':'opacity:.5'}">Save</button></div><div class="grid">`;
+  let h=`<div class="row"><div><h1>Schedule</h1><div class="sub">Choose when it should be warm. It heats in the cheapest hours inside each window.</div></div><button class="btn" id="save" style="${S.dirty?'':'opacity:.5'}">Save</button></div><div class="grid">`;
   Object.entries(S.cfg.units).forEach(([id,u])=>{
     const nm=S.state?.devices?.[id]?.name||S.state?.available?.find(a=>a.id===id)?.name||id;
     h+=`<div class="card c6" data-u="${id}"><div class="row"><b style="font-size:17px">${nm}</b><button class="switch ${u.enabled!==false?'on':''}" data-k="enabled" aria-label="Enabled"></button></div>
     <div class="field"><label>Target temperature <b>${u.target??21}°</b></label><input type="range" min="16" max="26" step="0.5" value="${u.target??21}" data-k="target"></div>
-    <div class="field"><label>Savings ⟷ comfort <b>${Math.round((u.comfort??.7)*100)}%</b></label><input type="range" min="0.2" max="1" step="0.05" value="${u.comfort??.7}" data-k="comfort"></div>
+    <div class="field"><label>Savings to comfort <b>${Math.round((u.comfort??.7)*100)}%</b></label><input type="range" min="0.2" max="1" step="0.05" value="${u.comfort??.7}" data-k="comfort"></div>
     <div class="field"><label>Never heat above <b>${u.max_price??40} c/kWh</b></label><input type="range" min="5" max="80" step="1" value="${u.max_price??40}" data-k="max_price"></div>
     <div class="field"><label>Warm during</label>${(u.windows||[]).map((w,i)=>`<div class="win" data-w="${i}"><div class="days">${DAYS.map((n,j)=>`<button class="${w.days.includes(j)?'on':''}" data-d="${j}">${n}</button>`).join('')}</div><div class="two">${hourSel(w.start,'start',0)}${hourSel(w.end,'end',1)}</div><button class="btn ghost sm" style="margin-top:10px" data-rm="${i}">Remove</button></div>`).join('')}
     <button class="btn ghost sm" style="margin-top:12px" data-addw>+ Add window</button></div>
@@ -256,7 +256,7 @@ function viewSched(){
 function viewSettings(){
   return `<h1>Settings</h1><div class="sub">Where ACtrack gets its data.</div><div class="grid">
   <div class="card c6"><div class="row"><div class="lbl">Homelab server</div><span class="pill ${S.mode==='server'&&S.online?'on':''}">${S.mode==='server'&&S.online?'Connected':'Optional'}</span></div>
-  <p class="mut" style="margin-top:0">Instant control, no GitHub needed. Leave the address empty when this page is served by the server itself.</p>
+  <p class="mut" style="margin-top:0">Direct control without GitHub. Leave the address empty when this page is served by the server itself.</p>
   <div class="field"><label>Server address</label><input type="text" id="srv" value="${S.base}" placeholder="http://homelab:8787"></div><div class="field"><label>Server password</label><input type="password" id="srvtok" value="${S.srvTok}"></div></div>
   <div class="card c6"><div class="row"><div class="lbl">GitHub</div><span class="pill ${S.mode==='github'&&S.online?'on':''}">${S.mode==='github'&&S.online?'Connected':'Optional'}</span></div>
   <p class="mut" style="margin-top:0">Reads and writes your private repo. Use a fine-grained token with Contents: read &amp; write, for that repo only.</p>
@@ -274,7 +274,7 @@ function viewWidget(){
 /* ---------- render + events ---------- */
 function render(){
   const main=$('#main');
-  $('#side').innerHTML=`<div class="brand"><i><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="7" rx="3" fill="#fff"/><path d="M7 10h10" stroke="#ff7a2e" stroke-width="1.2" stroke-linecap="round"/><g fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M8 15c1.500 1.500-1.500 3 0 4.500"/><path d="M12 15c1.500 1.500-1.500 3 0 4.500"/><path d="M16 15c1.500 1.500-1.500 3 0 4.500"/></g></svg></i>ACtrack</div>`+
+  $('#side').innerHTML=`<div class="brand"><i><svg viewBox="0 0 24 24"><rect x="4" y="12" width="3.500" height="8" rx="1" fill="var(--bg)"/><rect x="10.250" y="7" width="3.500" height="13" rx="1" fill="var(--bg)"/><rect x="16.500" y="4" width="3.500" height="16" rx="1" fill="var(--accent)"/></svg></i>ACtrack</div>`+
     TABS.map(([k,n],i)=>`<button class="nav ${S.tab===k?'on':''}" data-go="${k}">${ICON[k]}${n}<kbd>${i+1}</kbd></button>`).join('')+
     `<div class="side-foot"><span class="dot ${S.online?'ok':'bad'}"></span>${S.online?(S.mode==='server'?'Homelab · live':'GitHub'):'Offline'}</div>`;
   $('#tabbar').innerHTML=TABS.map(([k,n])=>`<button class="${S.tab===k?'on':''}" data-go="${k}">${ICON[k]}${n}</button>`).join('');
