@@ -170,7 +170,8 @@ async function control(id,mode,target){
       if(mode==='auto')delete u.override;
       else u.override={mode,until:new Date(Date.now()+minutes*60e3).toISOString(),...(target?{target}:{})};
       await saveCfg(mode==='off'?'Turning off. The scheduler picks it up in a few minutes':mode==='on'?'Turning on. The scheduler picks it up in a few minutes':'Back to the schedule');
-      S.state.devices[id].override=u.override||null;
+      S.pend=S.pend||{};S.pend[id]={ov:u.override||null,at:Date.now()};   // show it until the scheduler reports back
+      [40e3,80e3,130e3].forEach(ms=>setTimeout(()=>load(true),ms));
     }
     render();
   }catch(e){toast('Failed: '+e.message)}
@@ -230,7 +231,10 @@ function viewToday(){
   let h=head('Overview',S.state?.updated?'Updated '+hh(new Date(S.state.updated))+' · prices include estimated margin and transfer':'Waiting for the first scheduler run',`<div style="display:flex;gap:14px;align-items:center"><label style="display:flex;gap:8px;align-items:center;color:var(--ink2);font-weight:500">Automation<button class="switch ${S.cfg?.paused?'':'on'}" data-pause aria-label="Automation on or off" aria-pressed="${!S.cfg?.paused}"></button></label><button class="btn ghost sm" data-refresh>Refresh</button></div>`);
   if(S.cfg?.paused)h+=`<div class="panel"><div class="tool" style="border-top:0"><span><b style="font-weight:600">Automation is paused.</b> <span class="sub">ACtrack is not changing your ACs. It still records energy and cost.</span></span><button class="btn sm" data-pause>Resume</button></div></div>`;
   if(!d.length)h+=`<div class="panel"><div class="empty">No AC tracked yet. Add one in <a href="#" data-go="sched">Schedule</a>.</div></div>`;
-  d.forEach(([id,x])=>{const day=x.days?.[dayKey()]||{kwh:0,eur:0},ov=x.override&&new Date(x.override.until)>new Date()?x.override:null;
+  d.forEach(([id,x])=>{const day=x.days?.[dayKey()]||{kwh:0,eur:0};
+    let raw=x.override,applying=false;const pd=S.pend?.[id];
+    if(pd){if(new Date(S.state.updated).getTime()<pd.at){raw=pd.ov;applying=true}else delete S.pend[id]}
+    const ov=raw&&new Date(raw.until)>new Date()?raw:null;
     h+=`<div class="panel"><div class="ph"><b>${x.name||id}</b><span class="badge ${x.mode==='heat'?'on':''}"><i></i>${modeLabel(x)}</span></div>
     <div class="stats"><div class="stat"><div class="k">Room</div><div class="v">${x.room_temp!=null?nf(x.room_temp,1):'–'}<small>°C</small></div></div>
     <div class="stat"><div class="k">Target</div><div class="v">${nf(x.target,1)}<small>°C</small><span class="stepper"><button data-t="-0.5" data-id="${id}" aria-label="Lower target">−</button><button data-t="0.5" data-id="${id}" aria-label="Raise target">+</button></span></div></div>
@@ -238,7 +242,7 @@ function viewToday(){
     <div class="stat"><div class="k">Today</div><div class="v">${eur(day.eur)}</div><div class="sub">${nf(day.kwh,1)} kWh</div></div></div>
     <div class="tool"><div class="grp"><div class="seg" data-ctl="${id}"><button class="${!ov?'on':''}" data-m="auto">Auto</button><button class="${ov&&ov.mode==='on'?'on':''}" data-m="on">On</button><button class="${ov&&ov.mode==='off'?'on':''}" data-m="off">Off</button></div>
     <select id="dur" aria-label="How long a manual On or Off lasts">${DURS.map(([v,l])=>`<option value="${v}" ${S.dur===v?'selected':''}>${l}</option>`).join('')}</select></div>
-    <span class="sub" style="margin:0">${manualNote(ov)}</span></div></div>`});
+    <span class="sub" style="margin:0">${applying?'Applying, the AC updates within a couple of minutes. ':''}${manualNote(ov)}</span></div></div>`});
   const rg=ranges(ps,heat).slice(0,5);
   h+=`<div class="panel"><div class="ph"><div><span class="k" style="margin:0">Spot price now</span> <b style="font-size:18px;margin-left:8px">${cur==null?'–':cents(cur)}</b> <span class="sub">c/kWh</span></div><div class="legend"><span><i style="background:var(--band);outline:1px solid var(--accent);outline-offset:-1px"></i>Heating hours</span><span><i style="background:var(--bar)"></i>Spot price</span></div></div>
   <div class="pb">${priceChart(ps,heat,'pc')}${rg.length?`<div class="plan"><b>Planned heating</b> &nbsp;${rg.map(fmtRange).join(' &nbsp;·&nbsp; ')}</div>`:'<div class="plan">No heating planned in the known price window.</div>'}</div></div>`;
