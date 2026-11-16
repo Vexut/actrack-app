@@ -130,7 +130,7 @@ if(widget)document.body.classList.add('widget');
 
 /* ---------- backends: homelab server or GitHub ---------- */
 const S={mode:null,base:ls.get('server')||'',srvTok:ls.get('srvtok')||'',repo:ls.get('repo')||'',ghTok:ls.get('token')||'',
-  cfg:null,state:null,sha:null,tab:qTab||ls.get('tab')||'today',range:+(ls.get('range')||14),dur:+(ls.get('dur')||120),err:'',loading:true,online:false,dirty:false,tableView:false};
+  cfg:null,state:null,sha:null,tab:qTab||ls.get('tab')||'today',range:+(ls.get('range')||14),dur:+(ls.get('dur')||120),pday:new URLSearchParams(location.search).get('day')||ls.get('pday')||'today',err:'',loading:true,online:false,dirty:false,tableView:false};
 const b64d=b=>JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g,'')),c=>c.charCodeAt(0))));
 const b64e=o=>{let s='';new TextEncoder().encode(JSON.stringify(o,null,2)+'\n').forEach(c=>s+=String.fromCharCode(c));return btoa(s)};
 async function srv(path,opt={}){
@@ -199,6 +199,13 @@ function ranges(ps,heat){
     if(heat.has(p.t.getTime())){if(cur&&cur.end.getTime()===p.t.getTime())cur.end=new Date(p.t.getTime()+3600e3);else{cur={start:p.t,end:new Date(p.t.getTime()+3600e3)};out.push(cur)}}});
   return out;
 }
+const tomorrowKey=()=>dayKey(new Date(Date.now()+864e5));
+function viewPrices(){   // the hours shown in the price chart for the chosen day
+  const all=prices();
+  if(S.pday==='today')return all.filter(p=>dayKey(p.t)===dayKey());
+  if(S.pday==='tomorrow')return all.filter(p=>dayKey(p.t)===tomorrowKey());
+  return all;
+}
 const fmtRange=r=>`${wd(r.start)} ${hh(r.start)}–${hh(r.end)}`;
 
 /* ---------- charts ---------- */
@@ -212,7 +219,7 @@ function priceChart(ps,heat,id){
     if(hot)s+=`<rect x="${x}" y="0" width="${bw}" height="${H}" fill="var(--band)"/><rect x="${x}" y="${H+3}" width="${bw}" height="3" fill="var(--accent)"/>`;
     s+=`<rect x="${x+1}" y="${H-h}" width="${Math.max(1.5,bw-2)}" height="${h}" rx="1" fill="var(--bar)" opacity="${past?.45:1}"/>`;
     if(p.t.getHours()===0&&i){s+=`<line x1="${x}" x2="${x}" y1="0" y2="${H}" stroke="var(--line2)" stroke-dasharray="2 3"/>`}
-    if(p.t.getHours()%6===0)s+=`<text x="${x+bw/2}" y="${H+20}" text-anchor="middle">${p.t.getHours()===0?wd(p.t):String(p.t.getHours()).padStart(2,'0')}</text>`});
+    if(p.t.getHours()%(ps.length<=26?3:6)===0)s+=`<text x="${x+bw/2}" y="${H+20}" text-anchor="middle">${p.t.getHours()===0?wd(p.t):String(p.t.getHours()).padStart(2,'0')}</text>`});
   if(ni>=0){const x=L+ni*bw+bw/2;s+=`<line x1="${x}" x2="${x}" y1="0" y2="${H}" stroke="var(--ink)" stroke-width="1"/>`}
   return `<div class="chart" id="${id}">${s}</svg><div class="tip"></div></div>`;
 }
@@ -251,9 +258,15 @@ function viewToday(){
     <div class="tool"><div class="grp"><div class="seg" data-ctl="${id}"><button class="${!ov?'on':''}" data-m="auto">Auto</button><button class="${ov&&ov.mode==='on'?'on':''}" data-m="on">On</button><button class="${ov&&ov.mode==='off'?'on':''}" data-m="off">Off</button></div>
     <select id="dur" aria-label="How long a manual On or Off lasts">${DURS.map(([v,l])=>`<option value="${v}" ${S.dur===v?'selected':''}>${l}</option>`).join('')}</select></div>
     <span class="sub" style="margin:0">${applying?'Applying, the AC updates within a couple of minutes. ':''}${manualNote(ov)}</span></div></div>`});
-  const rg=ranges(ps,heat).slice(0,5);
-  h+=`<div class="panel"><div class="ph"><div><span class="k" style="margin:0">Spot price now</span> <b style="font-size:18px;margin-left:8px">${cur==null?'–':cents(cur)}</b> <span class="sub">c/kWh</span></div><div class="legend"><span><i style="background:var(--band);outline:1px solid var(--accent);outline-offset:-1px"></i>Heating hours</span><span><i style="background:var(--bar)"></i>Spot price</span></div></div>
-  <div class="pb">${priceChart(ps,heat,'pc')}${rg.length?`<div class="plan"><b>Planned heating</b> &nbsp;${rg.map(fmtRange).join(' &nbsp;·&nbsp; ')}</div>`:'<div class="plan">No heating planned in the known price window.</div>'}</div></div>`;
+  const pv=viewPrices(),rg=ranges(pv,heat).slice(0,6);
+  const lo=pv.length?pv.reduce((m,p)=>p.c<m.c?p:m):null,hi=pv.length?pv.reduce((m,p)=>p.c>m.c?p:m):null,avg=pv.length?pv.reduce((a,p)=>a+p.c,0)/pv.length:0;
+  const noTomorrow=S.pday==='tomorrow'&&!pv.length;
+  h+=`<div class="panel"><div class="ph"><div><span class="k" style="margin:0">Spot price now</span> <b style="font-size:18px;margin-left:8px">${cur==null?'–':cents(cur)}</b> <span class="sub">c/kWh</span></div>
+  <div class="seg" id="pday">${[['today','Today'],['tomorrow','Tomorrow'],['all','48 h']].map(([k,l])=>`<button class="${S.pday===k?'on':''}" data-pd="${k}">${l}</button>`).join('')}</div></div>
+  <div class="pb">${noTomorrow?`<div class="empty">Tomorrow's prices are not out yet. They are usually published around 14:00.</div>`:priceChart(pv,heat,'pc')}
+  <div class="legend" style="margin-top:12px"><span><i style="background:var(--band);outline:1px solid var(--accent);outline-offset:-1px"></i>Heating hours</span><span><i style="background:var(--bar)"></i>Spot price</span></div>
+  ${lo?`<div class="plan"><b>Price</b> &nbsp;average ${cents(avg)} c &nbsp;·&nbsp; lowest ${cents(lo.c)} c at ${hh(lo.t)} &nbsp;·&nbsp; highest ${cents(hi.c)} c at ${hh(hi.t)}</div>`:''}
+  ${noTomorrow?'':rg.length?`<div class="plan"><b>Planned heating</b> &nbsp;${rg.map(fmtRange).join(' &nbsp;·&nbsp; ')}</div>`:'<div class="plan"><b>Planned heating</b> &nbsp;none in this period</div>'}</div></div>`;
   const adv=d.find(([,x])=>x.advice)?.[1].advice;
   if(adv){const best=Math.min(...adv.rows.map(r=>r.eur));
     h+=`<div class="panel"><div class="ph"><b>Strategy estimate</b><span class="sub" style="margin:0">Next ${adv.hours} h · generic room model, not measured from yours</span></div>
@@ -323,7 +336,7 @@ function render(){
   if(widget){main.innerHTML=S.state?viewWidget():'<div class="panel"><div class="empty">Open ACtrack and connect first</div></div>';return}
   if(S.loading){main.innerHTML='<div class="panel"><div class="empty">Loading</div></div>';return}
   main.innerHTML=({today:viewToday,spend:viewSpend,sched:viewSched,settings:viewSettings}[S.tab]||viewToday)();
-  if(S.tab==='today')wirePriceChart('pc',prices(),heatSet());
+  if(S.tab==='today')wirePriceChart('pc',viewPrices(),heatSet());
   if(S.tab==='spend'){const el=$('#sc');if(el){const tip=el.querySelector('.tip');el.querySelectorAll('rect').forEach(r=>{r.addEventListener('pointerenter',()=>{const k=r.dataset.k,by={eur:0,kwh:0};devs().forEach(([,x])=>{const v=x.days?.[k];if(v){by.eur+=v.eur;by.kwh+=v.kwh}});const b=el.getBoundingClientRect(),rb=r.getBoundingClientRect();tip.innerHTML=`<span class="t2">${k}</span><br><b>${eur(by.eur)}</b> <span class="t2">· ${nf(by.kwh,1)} kWh</span>`;tip.style.left=rb.left-b.left+rb.width/2+'px';tip.style.top=rb.top-b.top-6+'px';tip.style.opacity=1});r.addEventListener('pointerleave',()=>tip.style.opacity=0)})}}
 }
 const go=t=>{S.tab=t;ls.set('tab',t);render();scrollTo(0,0)};
@@ -332,6 +345,7 @@ document.addEventListener('click',async e=>{
   if(t.dataset.go){e.preventDefault();return go(t.dataset.go)}
   if(t.dataset.refresh!==undefined){load();return toast('Refreshing')}
   if(t.dataset.pause!==undefined){S.cfg.paused=!S.cfg.paused;await saveCfg(S.cfg.paused?'Paused. ACtrack will leave your ACs alone':'Resumed. Back to the schedule');return render()}
+  if(t.dataset.pd){S.pday=t.dataset.pd;ls.set('pday',S.pday);return render()}
   if(t.dataset.r){S.range=+t.dataset.r;ls.set('range',S.range);return render()}
   if(t.dataset.tv){S.tableView=t.dataset.tv==='1';return render()}
   if(t.dataset.th){const v=t.dataset.th;ls.set('theme',v==='auto'?'':v);if(v==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=v;return render()}
