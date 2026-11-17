@@ -122,7 +122,7 @@ const eur=e=>nf(e||0)+' €';
 const cents=c=>nf(c,1);
 const TZ='Europe/Helsinki';
 const dayKey=(d=new Date())=>d.toLocaleDateString('sv',{timeZone:TZ});
-const hh=d=>d.toLocaleTimeString('fi',{hour:'2-digit',minute:'2-digit',timeZone:TZ});
+const hh=d=>d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:TZ});   // always 24 h, 20:34
 const wd=d=>d.toLocaleDateString('en',{weekday:'short',timeZone:TZ});
 const widget=new URLSearchParams(location.search).has('widget');
 if(widget)document.body.classList.add('widget');
